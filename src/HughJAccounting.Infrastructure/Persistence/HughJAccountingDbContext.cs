@@ -20,16 +20,24 @@ public sealed class HughJAccountingDbContext
     {
     }
 
+    // Organization DbSets
     public DbSet<Organization> Organizations => Set<Organization>();
+    // Accounting Entity DbSets
     public DbSet<AccountingEntity> AccountingEntities => Set<AccountingEntity>();
+    // Accounting DbSets
     public DbSet<Account> Accounts => Set<Account>();
-    public DbSet<FiscalPeriod> FiscalPeriods => Set<FiscalPeriod>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<JournalLine> JournalLines => Set<JournalLine>();
+    // Fiscal DbSets
+    public DbSet<FiscalPeriod> FiscalPeriods => Set<FiscalPeriod>();
+    // Audit DbSets
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
+    // Security DbSets
+    public DbSet<AccessGrant> AccessGrants => Set<AccessGrant>();
     public DbSet<OrganizationMembership> OrganizationMemberships => Set<OrganizationMembership>();
+    public DbSet<OrganizationMembershipRole> OrganizationMembershipRoles => Set<OrganizationMembershipRole>();
     public DbSet<OrganizationRole> OrganizationRoles => Set<OrganizationRole>();
-    public DbSet<OrganizationRolePermission> OrganizationPermissions => Set<OrganizationRolePermission>();
+    public DbSet<OrganizationRolePermission> OrganizationRolePermissions => Set<OrganizationRolePermission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,7 +45,7 @@ public sealed class HughJAccountingDbContext
 
         ConfigureIdentity(modelBuilder);
         ConfigureOrganizations(modelBuilder);
-        ConfigureEntities(modelBuilder);
+        ConfigureAccountingEntities(modelBuilder);
         ConfigureAccounting(modelBuilder);
         ConfigureFiscal(modelBuilder);
         ConfigureAudit(modelBuilder);
@@ -75,6 +83,40 @@ public sealed class HughJAccountingDbContext
 
     private static void ConfigureSecurity(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AccessGrant>(entity =>
+        {
+            entity.ToTable("access_grants");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.PermissionKey)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.Property(x => x.ResourceType)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.Property(x => x.Reason)
+                .HasMaxLength(500);
+
+            entity.HasIndex(x => new
+            {
+                x.OrganizationId,
+                x.UserId,
+                x.PermissionKey,
+                x.ResourceType,
+                x.ResourceId
+            });
+
+            entity.HasIndex(x => new
+            {
+                x.OrganizationId,
+                x.AccountingEntityId,
+                x.ResourceType,
+                x.ResourceId
+            });
+        });
         modelBuilder.Entity<OrganizationMembership>(entity =>
         {
             entity.ToTable("organization_memberships");
@@ -129,6 +171,26 @@ public sealed class HughJAccountingDbContext
                 .HasForeignKey(x => x.OrganizationRoleId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<OrganizationMembershipRole>(entity =>
+        {
+            entity.ToTable("organization_membership_roles");
+
+            entity.HasKey(x => x.Id);
+
+            entity.HasIndex(x => new { x.OrganizationMembershipId, x.OrganizationRoleId })
+                .IsUnique();
+
+            entity.HasOne<OrganizationMembership>()
+                .WithMany()
+                .HasForeignKey(x => x.OrganizationMembershipId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne<OrganizationRole>()
+                .WithMany()
+                .HasForeignKey(x => x.OrganizationRoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     private static void ConfigureOrganizations(ModelBuilder modelBuilder)
@@ -152,7 +214,7 @@ public sealed class HughJAccountingDbContext
         });
     }
 
-    private static void ConfigureEntities(ModelBuilder modelBuilder)
+    private static void ConfigureAccountingEntities(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AccountingEntity>(entity =>
         {

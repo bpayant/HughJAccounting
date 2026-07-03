@@ -3,6 +3,7 @@ using System;
 using HughJAccounting.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HughJAccounting.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(HughJAccountingDbContext))]
-    partial class HughJAccountingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260703171946_RenameOrganizationPermissionsToOrganizationRolePermissions")]
+    partial class RenameOrganizationPermissionsToOrganizationRolePermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -309,65 +312,6 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.ToTable("organizations", (string)null);
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Security.AccessGrant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AccountingEntityId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("ExpiresAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PermissionKey")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<Guid?>("ResourceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ResourceType")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<DateTimeOffset?>("RevokedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("RevokedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId", "AccountingEntityId", "ResourceType", "ResourceId");
-
-                    b.HasIndex("OrganizationId", "UserId", "PermissionKey", "ResourceType", "ResourceId");
-
-                    b.ToTable("access_grants", (string)null);
-                });
-
             modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationMembership", b =>
                 {
                     b.Property<Guid>("Id")
@@ -397,31 +341,6 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("organization_memberships", (string)null);
-                });
-
-            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationMembershipRole", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OrganizationMembershipId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OrganizationRoleId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationRoleId");
-
-                    b.HasIndex("OrganizationMembershipId", "OrganizationRoleId")
-                        .IsUnique();
-
-                    b.ToTable("organization_membership_roles", (string)null);
                 });
 
             modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationRole", b =>
@@ -714,21 +633,6 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationMembershipRole", b =>
-                {
-                    b.HasOne("HughJAccounting.Domain.Security.OrganizationMembership", null)
-                        .WithMany()
-                        .HasForeignKey("OrganizationMembershipId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HughJAccounting.Domain.Security.OrganizationRole", null)
-                        .WithMany()
-                        .HasForeignKey("OrganizationRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

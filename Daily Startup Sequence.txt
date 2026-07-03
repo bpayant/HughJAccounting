@@ -17,12 +17,14 @@ Normal daily startup sequence
 	In Visual Studio
 		Build the solution:
 				F6
-		Run the API:
-				F5
+		Run the API (in VS's Powershell):
+				dotnet run --project src\HughJAccounting.Api
 	
 	In a second PowerShell window, test the API:
 		Set the base URL:
-				$base = "http://localhost:7263"
+				$base = "https://localhost:7263"
+			or
+				$base = "http://localhost:5194"
 		Login:
 				$login = Invoke-RestMethod `
 				  -Uri "$base/login?useCookies=false" `
