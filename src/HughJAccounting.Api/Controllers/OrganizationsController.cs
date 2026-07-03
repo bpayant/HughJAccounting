@@ -1,5 +1,5 @@
 using HughJAccounting.Domain.Audit;
-using HughJAccounting.Domain.Tenancy;
+using HughJAccounting.Domain.Organizations;
 using HughJAccounting.Infrastructure.Persistence;
 using HughJAccounting.Api.Auth;
 
@@ -14,23 +14,23 @@ namespace HughJAccounting.Api.Controllers;
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.IdentityBearer)]
 [ApiController]
 [Route("api/[controller]")]
-public sealed class TenantsController : ControllerBase
+public sealed class OrganizationsController : ControllerBase
 {
     private readonly HughJAccountingDbContext _dbContext;
 
-    public TenantsController(HughJAccountingDbContext dbContext) 
+    public OrganizationsController(HughJAccountingDbContext dbContext) 
     {
         _dbContext = dbContext;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<TenantResponse>>> GetTenants(
+    public async Task<ActionResult<IReadOnlyList<OrganizationResponse>>> GetOrganizations(
         CancellationToken cancellationToken)
     {
-        var tenants = await _dbContext.Tenants
+        var organizations = await _dbContext.Organizations
             .AsNoTracking()
             .OrderBy(x => x.Name)
-            .Select(x => new TenantResponse(
+            .Select(x => new OrganizationResponse(
                 x.Id,
                 x.Name,
                 x.Slug,
@@ -38,18 +38,18 @@ public sealed class TenantsController : ControllerBase
                 x.CreatedAtUtc))
             .ToListAsync(cancellationToken);
 
-        return Ok(tenants);
+        return Ok(organizations);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<TenantResponse>> GetTenant(
+    public async Task<ActionResult<OrganizationResponse>> GetOrganization(
         Guid id,
         CancellationToken cancellationToken)
     {
-        var tenant = await _dbContext.Tenants
+        var organization = await _dbContext.Organizations
             .AsNoTracking()
             .Where(x => x.Id == id)
-            .Select(x => new TenantResponse(
+            .Select(x => new OrganizationResponse(
                 x.Id,
                 x.Name,
                 x.Slug,
@@ -57,65 +57,65 @@ public sealed class TenantsController : ControllerBase
                 x.CreatedAtUtc))
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (tenant is null)
+        if (organization is null)
         {
             return NotFound();
         }
 
-        return Ok(tenant);
+        return Ok(organization);
     }
 
     [HttpPost]
-    public async Task<ActionResult<TenantResponse>> CreateTenant(
-        CreateTenantRequest request,
+    public async Task<ActionResult<OrganizationResponse>> CreateOrganization(
+        CreateOrganizationRequest request,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return BadRequest("Tenant name is required.");
+            return BadRequest("Organization name is required.");
         }
 
         var slug = string.IsNullOrWhiteSpace(request.Slug)
             ? CreateSlug(request.Name)
             : CreateSlug(request.Slug);
 
-        var slugAlreadyExists = await _dbContext.Tenants
+        var slugAlreadyExists = await _dbContext.Organizations
             .AnyAsync(x => x.Slug == slug, cancellationToken);
 
         if (slugAlreadyExists)
         {
-            return Conflict($"A tenant with slug '{slug}' already exists.");
+            return Conflict($"A organization with slug '{slug}' already exists.");
         }
 
-        var tenant = new Tenant
+        var organization = new Organization
         {
             Name = request.Name.Trim(),
             Slug = slug
         };
 
-        _dbContext.Tenants.Add(tenant);
+        _dbContext.Organizations.Add(organization);
 
         _dbContext.AuditEvents.Add(new AuditEvent
         {
-            TenantId = tenant.Id,
+            OrganizationId = organization.Id,
             EventType = AuditEventType.Created,
-            EntityType = AuditedEntityTypes.Tenant,
-            EntityId = tenant.Id,
-            Summary = $"Created tenant '{tenant.Name}'."
+            EntityType = AuditedEntityTypes.Organization,
+            EntityId = organization.Id,
+            Summary = $"Created organization '{organization.Name}'."
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        var response = new TenantResponse(
-            tenant.Id,
-            tenant.Name,
-            tenant.Slug,
-            tenant.IsActive,
-            tenant.CreatedAtUtc);
+        var response = new OrganizationResponse(
+            organization.Id,
+            organization.Name,
+            organization.Slug,
+            organization.IsActive,
+            organization.CreatedAtUtc);
 
         return CreatedAtAction(
-            nameof(GetTenant),
-            new { id = tenant.Id },
+            nameof(GetOrganization),
+            new { id = organization.Id },
             response);
     }
 
@@ -138,11 +138,11 @@ public sealed class TenantsController : ControllerBase
     }
 }
 
-public sealed record CreateTenantRequest(
+public sealed record CreateOrganizationRequest(
     string Name,
     string? Slug);
 
-public sealed record TenantResponse(
+public sealed record OrganizationResponse(
     Guid Id,
     string Name,
     string Slug,

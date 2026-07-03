@@ -1,10 +1,10 @@
 ﻿namespace HughJAccounting.Domain.Security;
 
-public sealed class TenantRole
+public sealed class OrganizationRole
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
+    public Guid OrganizationId { get; set; }
 
     public required string Name { get; set; }
 

@@ -49,7 +49,7 @@ builder.Services.AddAuthorization();
 
 // -----------------------------------------------------------------------------
 // Register MVC/API controllers.
-// This is what enables controller classes like TenantsController.
+// This is what enables controller classes like OrganizationsController.
 // -----------------------------------------------------------------------------
 builder.Services.AddControllers();
 
@@ -100,8 +100,8 @@ app.MapIdentityApi<ApplicationUser>();
 // -----------------------------------------------------------------------------
 // Map our application API controllers.
 // This includes endpoints like:
-//   GET /api/tenants
-//   POST /api/tenants
+//   GET /api/organizations
+//   POST /api/organizations
 // -----------------------------------------------------------------------------
 app.MapControllers();
 

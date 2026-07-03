@@ -4,9 +4,9 @@ public sealed class FiscalPeriod
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
+    public Guid OrganizationId { get; set; }
 
-    public Guid LegalEntityId { get; set; }
+    public Guid AccountingEntityId { get; set; }
 
     public required string Name { get; set; }
 

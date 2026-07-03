@@ -4,7 +4,7 @@ public sealed class JournalLine
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
+    public Guid OrganizationId { get; set; }
 
     public Guid JournalEntryId { get; set; }
 

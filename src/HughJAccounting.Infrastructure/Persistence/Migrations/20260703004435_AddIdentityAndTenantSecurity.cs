@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HughJAccounting.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentityAndTenantSecurity : Migration
+    public partial class AddIdentityAndOrganizationSecurity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -66,11 +66,11 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tenant_roles",
+                name: "organization_roles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     DisplayName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
@@ -80,7 +80,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tenant_roles", x => x.Id);
+                    table.PrimaryKey("PK_organization_roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -190,11 +190,11 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tenant_memberships",
+                name: "organization_memberships",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAtUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -202,9 +202,9 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tenant_memberships", x => x.Id);
+                    table.PrimaryKey("PK_organization_memberships", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_tenant_memberships_identity_users_UserId",
+                        name: "FK_organization_memberships_identity_users_UserId",
                         column: x => x.UserId,
                         principalTable: "identity_users",
                         principalColumn: "Id",
@@ -212,22 +212,22 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tenant_permissions",
+                name: "organization_permissions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantRoleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationRoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     PermissionKey = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     CreatedAtUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tenant_permissions", x => x.Id);
+                    table.PrimaryKey("PK_organization_permissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_tenant_permissions_tenant_roles_TenantRoleId",
-                        column: x => x.TenantRoleId,
-                        principalTable: "tenant_roles",
+                        name: "FK_organization_permissions_organization_roles_OrganizationRoleId",
+                        column: x => x.OrganizationRoleId,
+                        principalTable: "organization_roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -270,31 +270,31 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_tenant_memberships_TenantId_UserId",
-                table: "tenant_memberships",
-                columns: new[] { "TenantId", "UserId" },
+                name: "IX_organization_memberships_OrganizationId_UserId",
+                table: "organization_memberships",
+                columns: new[] { "OrganizationId", "UserId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_tenant_memberships_UserId",
-                table: "tenant_memberships",
+                name: "IX_organization_memberships_UserId",
+                table: "organization_memberships",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tenant_permissions_TenantId_TenantRoleId_PermissionKey",
-                table: "tenant_permissions",
-                columns: new[] { "TenantId", "TenantRoleId", "PermissionKey" },
+                name: "IX_organization_permissions_OrganizationId_OrganizationRoleId_PermissionKey",
+                table: "organization_permissions",
+                columns: new[] { "OrganizationId", "OrganizationRoleId", "PermissionKey" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_tenant_permissions_TenantRoleId",
-                table: "tenant_permissions",
-                column: "TenantRoleId");
+                name: "IX_organization_permissions_OrganizationRoleId",
+                table: "organization_permissions",
+                column: "OrganizationRoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tenant_roles_TenantId_Name",
-                table: "tenant_roles",
-                columns: new[] { "TenantId", "Name" },
+                name: "IX_organization_roles_OrganizationId_Name",
+                table: "organization_roles",
+                columns: new[] { "OrganizationId", "Name" },
                 unique: true);
         }
 
@@ -317,10 +317,10 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 name: "identity_user_tokens");
 
             migrationBuilder.DropTable(
-                name: "tenant_memberships");
+                name: "organization_memberships");
 
             migrationBuilder.DropTable(
-                name: "tenant_permissions");
+                name: "organization_permissions");
 
             migrationBuilder.DropTable(
                 name: "identity_roles");
@@ -329,7 +329,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 name: "identity_users");
 
             migrationBuilder.DropTable(
-                name: "tenant_roles");
+                name: "organization_roles");
 
             migrationBuilder.Sql(
                 "ALTER TABLE audit_events ALTER COLUMN \"UserId\" TYPE text USING \"UserId\"::text;");

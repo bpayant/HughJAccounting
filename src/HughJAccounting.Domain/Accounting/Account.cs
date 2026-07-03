@@ -4,7 +4,7 @@ public sealed class Account
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
+    public Guid OrganizationId { get; set; }
 
     public Guid? ParentAccountId { get; set; }
 

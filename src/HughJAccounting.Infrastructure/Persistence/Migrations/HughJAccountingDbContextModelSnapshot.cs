@@ -60,7 +60,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Type")
@@ -68,7 +68,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "AccountNumber")
+                    b.HasIndex("OrganizationId", "AccountNumber")
                         .IsUnique();
 
                     b.ToTable("accounts", (string)null);
@@ -89,7 +89,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("FiscalPeriodId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("LegalEntityId")
+                    b.Property<Guid>("AccountingEntityId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Memo")
@@ -110,7 +110,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -145,14 +145,14 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.Property<int>("LineNumber")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("JournalEntryId");
 
-                    b.HasIndex("TenantId", "JournalEntryId", "LineNumber")
+                    b.HasIndex("OrganizationId", "JournalEntryId", "LineNumber")
                         .IsUnique();
 
                     b.ToTable("journal_lines", (string)null);
@@ -185,7 +185,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("UserId")
@@ -196,7 +196,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.ToTable("audit_events", (string)null);
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Entities.LegalEntity", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Entities.AccountingEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -222,15 +222,15 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "DisplayName")
+                    b.HasIndex("OrganizationId", "DisplayName")
                         .IsUnique();
 
-                    b.ToTable("legal_entities", (string)null);
+                    b.ToTable("accounting_entities", (string)null);
                 });
 
             modelBuilder.Entity("HughJAccounting.Domain.Fiscal.FiscalPeriod", b =>
@@ -254,7 +254,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsClosed")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("LegalEntityId")
+                    b.Property<Guid>("AccountingEntityId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -268,18 +268,18 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "LegalEntityId", "FiscalYear", "PeriodNumber")
+                    b.HasIndex("OrganizationId", "AccountingEntityId", "FiscalYear", "PeriodNumber")
                         .IsUnique();
 
                     b.ToTable("fiscal_periods", (string)null);
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Security.TenantMembership", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationMembership", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -294,7 +294,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
@@ -304,13 +304,13 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("TenantId", "UserId")
+                    b.HasIndex("OrganizationId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("tenant_memberships", (string)null);
+                    b.ToTable("organization_memberships", (string)null);
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Security.TenantPermission", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationPermission", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -324,23 +324,23 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("TenantRoleId")
+                    b.Property<Guid>("OrganizationRoleId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantRoleId");
+                    b.HasIndex("OrganizationRoleId");
 
-                    b.HasIndex("TenantId", "TenantRoleId", "PermissionKey")
+                    b.HasIndex("OrganizationId", "OrganizationRoleId", "PermissionKey")
                         .IsUnique();
 
-                    b.ToTable("tenant_permissions", (string)null);
+                    b.ToTable("organization_permissions", (string)null);
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Security.TenantRole", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -369,18 +369,18 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId", "Name")
+                    b.HasIndex("OrganizationId", "Name")
                         .IsUnique();
 
-                    b.ToTable("tenant_roles", (string)null);
+                    b.ToTable("organization_roles", (string)null);
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Tenancy.Tenant", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Organizations.Organization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -407,7 +407,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("tenants", (string)null);
+                    b.ToTable("organizations", (string)null);
                 });
 
             modelBuilder.Entity("HughJAccounting.Infrastructure.Identity.ApplicationUser", b =>
@@ -624,7 +624,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Security.TenantMembership", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationMembership", b =>
                 {
                     b.HasOne("HughJAccounting.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
@@ -633,11 +633,11 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HughJAccounting.Domain.Security.TenantPermission", b =>
+            modelBuilder.Entity("HughJAccounting.Domain.Security.OrganizationPermission", b =>
                 {
-                    b.HasOne("HughJAccounting.Domain.Security.TenantRole", null)
+                    b.HasOne("HughJAccounting.Domain.Security.OrganizationRole", null)
                         .WithMany()
-                        .HasForeignKey("TenantRoleId")
+                        .HasForeignKey("OrganizationRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

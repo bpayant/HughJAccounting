@@ -1,14 +1,40 @@
 Normal daily startup sequence
 
-	Going forward, the short version is:
+	Open Docker Desktop (ensure says Engine running in bottom left corner)
 
-		cd C:\Brian\Development\HughJAccounting
-		docker compose up -d
-		docker ps
-		dotnet build
-		dotnet run --project src\HughJAccounting.Api
+	In PowerShell
+		Go to parent directory of the project:
+				cd C:\Brian\Development\HughJAccounting
+		Start PostgreSQL through Docker Compose:
+				docker compose up -d
+		Confirm it is runnning:
+				docker ps
+		[OPTIONAL] Confirm database connection (look for PostgreSQL prompt):
+				docker exec -it hughj-postgres psql -U hughj_user -d hughj_accounting_dev
+			Exit PostgreSQL prompt:
+					\q
 
-	Then test from a second PowerShell window:
-
-		$base = "http://localhost:5194"
-		Invoke-RestMethod -Uri "$base/api/tenants" -Method Get
+	In Visual Studio
+		Build the solution:
+				F6
+		Run the API:
+				F5
+	
+	In a second PowerShell window, test the API:
+		Set the base URL:
+				$base = "http://localhost:7263"
+		Login:
+				$login = Invoke-RestMethod `
+				  -Uri "$base/login?useCookies=false" `
+				  -Method Post `
+				  -ContentType "application/json" `
+				  -Body '{"email":"brian@example.com","password":"Password123!"}'
+		Store the token:
+				$token = $login.accesstoken
+		Test unauthorized access:
+				Invoke-RestMethod -Uri "$base/api/organizations" -Method Get
+		Test authorized access:
+				Invoke-RestMethod `
+				  -Uri "$base/api/organizations" `
+				  -Method Get `
+				  -Headers @{ Authorization = "Bearer $token" }

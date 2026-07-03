@@ -1,8 +1,8 @@
 ﻿using HughJAccounting.Domain.Accounting;
 using HughJAccounting.Domain.Audit;
-using HughJAccounting.Domain.Entities;
+using HughJAccounting.Domain.AccountingEntities;
 using HughJAccounting.Domain.Fiscal;
-using HughJAccounting.Domain.Tenancy;
+using HughJAccounting.Domain.Organizations;
 using HughJAccounting.Domain.Security;
 using HughJAccounting.Infrastructure.Identity;
 
@@ -20,23 +20,23 @@ public sealed class HughJAccountingDbContext
     {
     }
 
-    public DbSet<Tenant> Tenants => Set<Tenant>();
-    public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
+    public DbSet<Organization> Organizations => Set<Organization>();
+    public DbSet<AccountingEntity> AccountingEntities => Set<AccountingEntity>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<FiscalPeriod> FiscalPeriods => Set<FiscalPeriod>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<JournalLine> JournalLines => Set<JournalLine>();
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
-    public DbSet<TenantMembership> TenantMemberships => Set<TenantMembership>();
-    public DbSet<TenantRole> TenantRoles => Set<TenantRole>();
-    public DbSet<TenantPermission> TenantPermissions => Set<TenantPermission>();
+    public DbSet<OrganizationMembership> OrganizationMemberships => Set<OrganizationMembership>();
+    public DbSet<OrganizationRole> OrganizationRoles => Set<OrganizationRole>();
+    public DbSet<OrganizationRolePermission> OrganizationPermissions => Set<OrganizationRolePermission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         ConfigureIdentity(modelBuilder);
-        ConfigureTenancy(modelBuilder);
+        ConfigureOrganizations(modelBuilder);
         ConfigureEntities(modelBuilder);
         ConfigureAccounting(modelBuilder);
         ConfigureFiscal(modelBuilder);
@@ -75,13 +75,13 @@ public sealed class HughJAccountingDbContext
 
     private static void ConfigureSecurity(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<TenantMembership>(entity =>
+        modelBuilder.Entity<OrganizationMembership>(entity =>
         {
-            entity.ToTable("tenant_memberships");
+            entity.ToTable("organization_memberships");
 
             entity.HasKey(x => x.Id);
 
-            entity.HasIndex(x => new { x.TenantId, x.UserId })
+            entity.HasIndex(x => new { x.OrganizationId, x.UserId })
                 .IsUnique();
 
             entity.HasOne<ApplicationUser>()
@@ -90,9 +90,9 @@ public sealed class HughJAccountingDbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<TenantRole>(entity =>
+        modelBuilder.Entity<OrganizationRole>(entity =>
         {
-            entity.ToTable("tenant_roles");
+            entity.ToTable("organization_roles");
 
             entity.HasKey(x => x.Id);
 
@@ -107,13 +107,13 @@ public sealed class HughJAccountingDbContext
             entity.Property(x => x.Description)
                 .HasMaxLength(500);
 
-            entity.HasIndex(x => new { x.TenantId, x.Name })
+            entity.HasIndex(x => new { x.OrganizationId, x.Name })
                 .IsUnique();
         });
 
-        modelBuilder.Entity<TenantPermission>(entity =>
+        modelBuilder.Entity<OrganizationRolePermission>(entity =>
         {
-            entity.ToTable("tenant_permissions");
+            entity.ToTable("organization_permissions");
 
             entity.HasKey(x => x.Id);
 
@@ -121,21 +121,21 @@ public sealed class HughJAccountingDbContext
                 .HasMaxLength(150)
                 .IsRequired();
 
-            entity.HasIndex(x => new { x.TenantId, x.TenantRoleId, x.PermissionKey })
+            entity.HasIndex(x => new { x.OrganizationId, x.OrganizationRoleId, x.PermissionKey })
                 .IsUnique();
 
-            entity.HasOne<TenantRole>()
+            entity.HasOne<OrganizationRole>()
                 .WithMany()
-                .HasForeignKey(x => x.TenantRoleId)
+                .HasForeignKey(x => x.OrganizationRoleId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
 
-    private static void ConfigureTenancy(ModelBuilder modelBuilder)
+    private static void ConfigureOrganizations(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Tenant>(entity =>
+        modelBuilder.Entity<Organization>(entity =>
         {
-            entity.ToTable("tenants");
+            entity.ToTable("organizations");
 
             entity.HasKey(x => x.Id);
 
@@ -154,9 +154,9 @@ public sealed class HughJAccountingDbContext
 
     private static void ConfigureEntities(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<LegalEntity>(entity =>
+        modelBuilder.Entity<AccountingEntity>(entity =>
         {
-            entity.ToTable("legal_entities");
+            entity.ToTable("accounting_entities");
 
             entity.HasKey(x => x.Id);
 
@@ -171,7 +171,7 @@ public sealed class HughJAccountingDbContext
             entity.Property(x => x.TaxIdLastFour)
                 .HasMaxLength(4);
 
-            entity.HasIndex(x => new { x.TenantId, x.DisplayName })
+            entity.HasIndex(x => new { x.OrganizationId, x.DisplayName })
                 .IsUnique();
         });
     }
@@ -195,7 +195,7 @@ public sealed class HughJAccountingDbContext
             entity.Property(x => x.ReportGroup)
                 .HasMaxLength(150);
 
-            entity.HasIndex(x => new { x.TenantId, x.AccountNumber })
+            entity.HasIndex(x => new { x.OrganizationId, x.AccountNumber })
                 .IsUnique();
         });
 
@@ -233,7 +233,7 @@ public sealed class HughJAccountingDbContext
             entity.Property(x => x.Credit)
                 .HasPrecision(18, 2);
 
-            entity.HasIndex(x => new { x.TenantId, x.JournalEntryId, x.LineNumber })
+            entity.HasIndex(x => new { x.OrganizationId, x.JournalEntryId, x.LineNumber })
                 .IsUnique();
         });
     }
@@ -250,7 +250,7 @@ public sealed class HughJAccountingDbContext
                 .HasMaxLength(100)
                 .IsRequired();
 
-            entity.HasIndex(x => new { x.TenantId, x.LegalEntityId, x.FiscalYear, x.PeriodNumber })
+            entity.HasIndex(x => new { x.OrganizationId, x.AccountingEntityId, x.FiscalYear, x.PeriodNumber })
                 .IsUnique();
         });
     }

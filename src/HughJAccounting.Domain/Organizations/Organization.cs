@@ -1,6 +1,6 @@
-﻿namespace HughJAccounting.Domain.Tenancy;
+﻿namespace HughJAccounting.Domain.Organizations;
 
-public sealed class Tenant
+public sealed class Organization
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 

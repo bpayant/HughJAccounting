@@ -16,7 +16,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParentAccountId = table.Column<Guid>(type: "uuid", nullable: true),
                     AccountNumber = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
@@ -38,7 +38,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: true),
                     EventType = table.Column<int>(type: "integer", nullable: false),
                     EntityType = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
@@ -57,8 +57,8 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LegalEntityId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccountingEntityId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     FiscalYear = table.Column<int>(type: "integer", nullable: false),
                     PeriodNumber = table.Column<int>(type: "integer", nullable: false),
@@ -78,8 +78,8 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LegalEntityId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccountingEntityId = table.Column<Guid>(type: "uuid", nullable: false),
                     FiscalPeriodId = table.Column<Guid>(type: "uuid", nullable: true),
                     EntryDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ReferenceNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -95,11 +95,11 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "legal_entities",
+                name: "accounting_entities",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     LegalName = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     DisplayName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     TaxIdLastFour = table.Column<string>(type: "character varying(4)", maxLength: 4, nullable: true),
@@ -108,11 +108,11 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_legal_entities", x => x.Id);
+                    table.PrimaryKey("PK_accounting_entities", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "tenants",
+                name: "organizations",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -123,7 +123,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tenants", x => x.Id);
+                    table.PrimaryKey("PK_organizations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -131,7 +131,7 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     JournalEntryId = table.Column<Guid>(type: "uuid", nullable: false),
                     AccountId = table.Column<Guid>(type: "uuid", nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
@@ -151,15 +151,15 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_accounts_TenantId_AccountNumber",
+                name: "IX_accounts_OrganizationId_AccountNumber",
                 table: "accounts",
-                columns: new[] { "TenantId", "AccountNumber" },
+                columns: new[] { "OrganizationId", "AccountNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_fiscal_periods_TenantId_LegalEntityId_FiscalYear_PeriodNumb~",
+                name: "IX_fiscal_periods_OrganizationId_AccountingEntityId_FiscalYear_PeriodNumb~",
                 table: "fiscal_periods",
-                columns: new[] { "TenantId", "LegalEntityId", "FiscalYear", "PeriodNumber" },
+                columns: new[] { "OrganizationId", "AccountingEntityId", "FiscalYear", "PeriodNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -168,20 +168,20 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 column: "JournalEntryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_journal_lines_TenantId_JournalEntryId_LineNumber",
+                name: "IX_journal_lines_OrganizationId_JournalEntryId_LineNumber",
                 table: "journal_lines",
-                columns: new[] { "TenantId", "JournalEntryId", "LineNumber" },
+                columns: new[] { "OrganizationId", "JournalEntryId", "LineNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_legal_entities_TenantId_DisplayName",
-                table: "legal_entities",
-                columns: new[] { "TenantId", "DisplayName" },
+                name: "IX_accounting_entities_OrganizationId_DisplayName",
+                table: "accounting_entities",
+                columns: new[] { "OrganizationId", "DisplayName" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_tenants_Slug",
-                table: "tenants",
+                name: "IX_organizations_Slug",
+                table: "organizations",
                 column: "Slug",
                 unique: true);
         }
@@ -202,10 +202,10 @@ namespace HughJAccounting.Infrastructure.Persistence.Migrations
                 name: "journal_lines");
 
             migrationBuilder.DropTable(
-                name: "legal_entities");
+                name: "accounting_entities");
 
             migrationBuilder.DropTable(
-                name: "tenants");
+                name: "organizations");
 
             migrationBuilder.DropTable(
                 name: "journal_entries");

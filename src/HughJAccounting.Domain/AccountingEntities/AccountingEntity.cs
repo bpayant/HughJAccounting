@@ -1,10 +1,10 @@
-﻿namespace HughJAccounting.Domain.Entities;
+﻿namespace HughJAccounting.Domain.AccountingEntities;
 
-public sealed class LegalEntity
+public sealed class AccountingEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
+    public Guid OrganizationId { get; set; }
 
     public required string LegalName { get; set; }
 
