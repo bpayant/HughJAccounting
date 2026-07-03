@@ -1,12 +1,17 @@
 using HughJAccounting.Domain.Audit;
 using HughJAccounting.Domain.Tenancy;
 using HughJAccounting.Infrastructure.Persistence;
+using HughJAccounting.Api.Auth;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace HughJAccounting.Api.Controllers;
 
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.IdentityBearer)]
 [ApiController]
 [Route("api/[controller]")]
 public sealed class TenantsController : ControllerBase

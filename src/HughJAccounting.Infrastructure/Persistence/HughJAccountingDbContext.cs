@@ -3,12 +3,17 @@ using HughJAccounting.Domain.Audit;
 using HughJAccounting.Domain.Entities;
 using HughJAccounting.Domain.Fiscal;
 using HughJAccounting.Domain.Tenancy;
+using HughJAccounting.Domain.Security;
+using HughJAccounting.Infrastructure.Identity;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HughJAccounting.Infrastructure.Persistence;
 
-public sealed class HughJAccountingDbContext : DbContext
+public sealed class HughJAccountingDbContext
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public HughJAccountingDbContext(DbContextOptions<HughJAccountingDbContext> options)
         : base(options)
@@ -22,14 +27,108 @@ public sealed class HughJAccountingDbContext : DbContext
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<JournalLine> JournalLines => Set<JournalLine>();
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
+    public DbSet<TenantMembership> TenantMemberships => Set<TenantMembership>();
+    public DbSet<TenantRole> TenantRoles => Set<TenantRole>();
+    public DbSet<TenantPermission> TenantPermissions => Set<TenantPermission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        ConfigureIdentity(modelBuilder);
         ConfigureTenancy(modelBuilder);
         ConfigureEntities(modelBuilder);
         ConfigureAccounting(modelBuilder);
         ConfigureFiscal(modelBuilder);
         ConfigureAudit(modelBuilder);
+        ConfigureSecurity(modelBuilder);
+    }
+
+    private static void ConfigureIdentity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ApplicationUser>(entity =>
+        {
+            entity.ToTable("identity_users");
+
+            entity.Property(x => x.DisplayName)
+                .HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<IdentityRole<Guid>>()
+            .ToTable("identity_roles");
+
+        modelBuilder.Entity<IdentityUserRole<Guid>>()
+            .ToTable("identity_user_roles");
+
+        modelBuilder.Entity<IdentityUserClaim<Guid>>()
+            .ToTable("identity_user_claims");
+
+        modelBuilder.Entity<IdentityUserLogin<Guid>>()
+            .ToTable("identity_user_logins");
+
+        modelBuilder.Entity<IdentityRoleClaim<Guid>>()
+            .ToTable("identity_role_claims");
+
+        modelBuilder.Entity<IdentityUserToken<Guid>>()
+            .ToTable("identity_user_tokens");
+    }
+
+    private static void ConfigureSecurity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<TenantMembership>(entity =>
+        {
+            entity.ToTable("tenant_memberships");
+
+            entity.HasKey(x => x.Id);
+
+            entity.HasIndex(x => new { x.TenantId, x.UserId })
+                .IsUnique();
+
+            entity.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<TenantRole>(entity =>
+        {
+            entity.ToTable("tenant_roles");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Name)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(x => x.DisplayName)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.Property(x => x.Description)
+                .HasMaxLength(500);
+
+            entity.HasIndex(x => new { x.TenantId, x.Name })
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<TenantPermission>(entity =>
+        {
+            entity.ToTable("tenant_permissions");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.PermissionKey)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.HasIndex(x => new { x.TenantId, x.TenantRoleId, x.PermissionKey })
+                .IsUnique();
+
+            entity.HasOne<TenantRole>()
+                .WithMany()
+                .HasForeignKey(x => x.TenantRoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     private static void ConfigureTenancy(ModelBuilder modelBuilder)

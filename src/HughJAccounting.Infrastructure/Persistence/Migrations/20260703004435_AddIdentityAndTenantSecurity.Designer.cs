@@ -3,6 +3,7 @@ using System;
 using HughJAccounting.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HughJAccounting.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(HughJAccountingDbContext))]
-    partial class HughJAccountingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260703004435_AddIdentityAndTenantSecurity")]
+    partial class AddIdentityAndTenantSecurity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,10 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace HughJAccounting.Infrastructure.Identity
+namespace HughJAccounting.Infrastructure.Identity;
+
+public sealed class ApplicationUser : IdentityUser<Guid>
 {
-    internal class ApplicationUser
+    public ApplicationUser()
     {
+        Id = Guid.NewGuid();
     }
+
+    public string? DisplayName { get; set; }
+
+    public bool IsActive { get; set; } = true;
+
+    public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
 }

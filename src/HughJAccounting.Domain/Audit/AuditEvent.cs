@@ -6,7 +6,7 @@ public sealed class AuditEvent
 
     public Guid TenantId { get; set; }
 
-    public string? UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     public AuditEventType EventType { get; set; }
 
