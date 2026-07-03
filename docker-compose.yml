@@ -1,0 +1,15 @@
+services:
+  hughj-postgres:
+    image: postgres:17
+    container_name: hughj-postgres
+    environment:
+      POSTGRES_DB: hughj_accounting_dev
+      POSTGRES_USER: hughj_user
+      POSTGRES_PASSWORD: hughj_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - hughj-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  hughj-postgres-data:

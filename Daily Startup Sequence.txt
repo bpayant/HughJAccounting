@@ -1,0 +1,14 @@
+Normal daily startup sequence
+
+	Going forward, the short version is:
+
+		cd C:\Brian\Development\HughJAccounting
+		docker compose up -d
+		docker ps
+		dotnet build
+		dotnet run --project src\HughJAccounting.Api
+
+	Then test from a second PowerShell window:
+
+		$base = "http://localhost:5194"
+		Invoke-RestMethod -Uri "$base/api/tenants" -Method Get

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HughJAccounting.Api/HughJAccounting.Api.csproj" />
+    <Project Path="src/HughJAccounting.Application/HughJAccounting.Application.csproj" />
+    <Project Path="src/HughJAccounting.Domain/HughJAccounting.Domain.csproj" />
+    <Project Path="src/HughJAccounting.Infrastructure/HughJAccounting.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/HughJAccounting.Tests/HughJAccounting.Tests.csproj" />
+  </Folder>
+</Solution>
