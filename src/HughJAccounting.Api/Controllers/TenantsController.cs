@@ -18,7 +18,7 @@ public sealed class TenantsController : ControllerBase
 {
     private readonly HughJAccountingDbContext _dbContext;
 
-    public TenantsController(HughJAccountingDbContext dbContext)
+    public TenantsController(HughJAccountingDbContext dbContext) 
     {
         _dbContext = dbContext;
     }
